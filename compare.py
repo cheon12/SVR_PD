@@ -48,16 +48,16 @@ class Control(APID):
                 self.data[key]['V'] += self.data[key]['control']
                 self.data[key]['V'] = max(min(self.data[key]['V'], 0.6), 0)
 
-        self.dt_list.append(self.dt * trigger) #plot을 위한 시간 값
+        self.dt_list.append(self.dt * trigger) 
         
-        self.D_SPID_list.append(self.data['leader']['D']-self.data['SPID']['D']) # plot을 위한 상대 거리값
-        self.D_APID_list.append(self.data['leader']['D']-self.data['APID']['D']) # plot을 위한 상대 거리값
+        self.D_SPID_list.append(self.data['leader']['D']-self.data['SPID']['D']) 
+        self.D_APID_list.append(self.data['leader']['D']-self.data['APID']['D']) # plot을 위한 상대 거리
         self.D_PID_list.append(self.data['leader']['D']-self.data['PID']['D'])
         
         self.D_ref_list.append(self.D_ref) 
-        self.SPID_max = max(self.D_SPID_list)
-        self.APID_max = max(self.D_APID_list)
-        self.PID_max = max(self.D_PID_list)
+        #self.SPID_max = max(self.D_SPID_list)
+        #self.APID_max = max(self.D_APID_list)
+        #self.PID_max = max(self.D_PID_list)
 
         plt.subplot(3,1,1)
         plt.plot(self.dt_list, self.D_PID_list, 'b')
