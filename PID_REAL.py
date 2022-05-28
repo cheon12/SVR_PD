@@ -5,17 +5,17 @@ from math import  radians ,copysign, sqrt, pow, pi, atan2, asin
 
 class PID:
     def __init__(self):
-        self.z_kp = 80
-        self.z_ki = 40
-        self.z_kd = 10
+        self.z_kp = 250
+        self.z_ki = 4
+        self.z_kd = 1
         
-        self.x_kp = 9
+        self.x_kp = 30
         self.x_ki = 3
         self.x_kd = 2
 
-        self.theta_kp = 10
-        self.theta_ki = 1
-        self.theta_kd = 1
+        self.theta_kp = -3
+        self.theta_ki = -1
+        self.theta_kd = -1
 
         self.dt = 1/10
 
