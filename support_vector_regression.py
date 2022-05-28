@@ -6,11 +6,13 @@ import matplotlib.pyplot as plt
 # Generate sample data
 X = np.sort(5 * np.random.rand(40, 1), axis=0)
 y = np.sin(X).ravel()
+print(X.shape)
 print(y.shape)
 
 # #############################################################################
 # Add noise to targets
 y[::5] += 3 * (0.5 - np.random.rand(8))
+print(X)
 print(y)
 svr_rbf = SVR(kernel="rbf", C=100, gamma=0.1, epsilon=0.1)
 svr_lin = SVR(kernel="linear", C=100, gamma="auto")

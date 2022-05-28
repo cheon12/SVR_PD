@@ -13,9 +13,9 @@ class PID:
         self.x_ki = 3
         self.x_kd = 2
 
-        self.theta_kp = -3
-        self.theta_ki = -1
-        self.theta_kd = -1
+        self.theta_kp = -60
+        self.theta_ki = -10
+        self.theta_kd = -10
 
         self.dt = 1/10
 

@@ -25,7 +25,7 @@ class Control(PID):
         }    
         
         self.data_theta= {'goal_theta':{'theta':0,'dtheta':0},
-                    'PID':{'theta':60,'dtheta':0,'pi':10,'control':0}
+                    'PID':{'theta':30,'dtheta':0,'pi':10,'control':0}
         }                    
         #self.control = [0,0]
         self.dt = 1/10
@@ -103,6 +103,8 @@ class Control(PID):
 
                 self.data_theta['PID']['pi']+=V_control_theta['PID']
                 self.data_theta['PID']['theta']+=(-((self.tmp_z)*math.sin(self.data_theta['PID']['pi'])*(0.685+0.1*math.cos(self.data_theta['PID']['pi']))+(0.575*self.tmp_x))/1.34)*self.dt*self.dt/2
+                if(trigger>11):
+                    self.data_theta['PID']['theta']/=1.03
                 self.data_theta['PID']['pi'] = max(min(self.data_theta['PID']['pi'], 10), -10)
 
         self.dt_list.append(self.dt * trigger)
