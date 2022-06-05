@@ -13,18 +13,17 @@ class PID:
         self.x_ki = 0
         self.x_kd = 6
 
-        self.theta_kp = 10
+        self.theta_kp = 8
         self.theta_ki = 0
         self.theta_kd = 15
 
-        self.dt = 1/10
+        self.dt = 1/1000
 
 
         self.x_error = 0
         self.pre_x_error = 0
         self.x_error_sum = 0
-        self.x1_error=0
-
+        self.x1_error=0   
         self.z_error = 0
         self.pre_z_error = 0
         self.z_error_sum = 0
@@ -39,8 +38,9 @@ class PID:
 
     def x_control(self, cur_distance, target_distance):
         self.pre_x_error = self.x_error
-        self.x_error = 1000*(cur_distance - target_distance)+self.theta_error
-        self.x1_error = (cur_distance - target_distance)
+        self.x_error = cur_distance - target_distance+ 0.001*self.theta_error
+        self.x1_error = cur_distance - target_distance
+
         self.x_error_sum += self.x_error
 
         self.x_PID_control = self.x_kp * self.x_error + self.x_ki * self.x_error_sum * self.dt + self.x_kd * (self.x_error - self.pre_x_error) / self.dt
@@ -50,7 +50,7 @@ class PID:
 
     def z_control(self, cur_distance, target_distance):
         self.pre_z_error = self.z_error
-        self.z_error = 50*(-cur_distance + target_distance)+self.x1_error
+        self.z_error = cur_distance - target_distance+0.02*self.x1_error
         self.z_error_sum += self.z_error
 
         self.z_PID_control = self.z_kp * self.z_error + self.z_ki * self.z_error_sum * self.dt + self.z_kd * (self.z_error - self.pre_z_error) / self.dt

@@ -1,6 +1,6 @@
-from APID import APID
-from PID import PID
-from SPID import SPID
+from tmp.APID import APID
+from tmp.PID import PID
+from tmp.SPID import SPID
 
 import matplotlib.pyplot as plt
 from time import sleep

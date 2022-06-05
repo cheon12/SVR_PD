@@ -6,22 +6,24 @@ from sklearn.svm import SVR
 
 class SVR1:
     def __init__(self):
-        self.z_kp = 250
-        self.z_ki = 4
-        self.z_kd = 1
+        self.z_kp = 15
+        self.z_ki = 0
+        self.z_kd = 10
         
-        self.x_kp = 30
-        self.x_ki = 3
-        self.x_kd = 2
+        self.x_kp = 5
+        self.x_ki = 0
+        self.x_kd = 6
 
-        self.theta_kp = 60
-        self.theta_ki = 10
-        self.theta_kd = 1
+        self.theta_kp = 10
+        self.theta_ki = 0
+        self.theta_kd = 15
+
 
         self.dt = 1/10
 
 
         self.x_error = 0
+        self.x1_error=0
         self.pre_x_error = 0
         self.x_error_sum = 0
 
@@ -35,12 +37,14 @@ class SVR1:
         self.theta_error_sum = 0
 
 
+
     def x_control(self, cur_distance, target_distance):
         self.pre_x_error_ = self.x_error
-        self.x_error = cur_distance - target_distance
+        self.x_error = 1000*(cur_distance - target_distance)+self.theta_error
+        self.x1_error = (cur_distance - target_distance)
         self.x_error_sum += self.x_error
-
-        self.x_PID_control = self.x_kp * self.x_error + 0.001*(46.8699*self.x_error_sum+20.46)+ self.x_kd * (self.x_error - self.pre_x_error_) / self.dt
+        #self.x_PID_control = 0.1*(130.986*self.x_error+35.76) + self.x_ki*self.x_error_sum*self.dt+ self.x_kd * (self.x_error - self.pre_x_error_) / self.dt
+        self.x_PID_control = self.x_kp * self.x_error + 0*(65.99*self.x_error_sum+15.988)+ self.x_kd * (self.x_error - self.pre_x_error_) / self.dt
         self.x1=[]
         self.x2=[]
         self.x1.append(self.x_error_sum)
@@ -52,10 +56,10 @@ class SVR1:
 
     def z_control(self, cur_distance, target_distance):
         self.pre_z_error_ = self.z_error
-        self.z_error = cur_distance - target_distance
+        self.z_error = 50*(-cur_distance + target_distance)+self.x1_error
         self.z_error_sum += self.z_error
-
-        self.z_PID_control = self.z_kp * self.z_error + 0.001*(258.773 * self.z_error_sum +21.03) + self.z_kd * (self.z_error - self.pre_z_error_) / self.dt
+        #self.z_PID_control = 0.1*(230.83*self.z_kp-37.14) + self.z_ki*self.z_error_sum *self.dt + self.z_kd * (self.z_error - self.pre_z_error_) / self.dt
+        self.z_PID_control = self.z_kp * self.z_error + 0*(115.91 * self.z_error_sum -18.74) + self.z_kd * (self.z_error - self.pre_z_error_) / self.dt
         self.z1=[]
         self.z2=[]
         self.z1.append(self.z_error_sum)
@@ -66,11 +70,11 @@ class SVR1:
 
 
     def theta_control(self, cur_distance, target_distance):
-        self.pre_D_error_ = self.theta_error
+        self.pre_theta_error_ = self.theta_error
         self.theta_error = cur_distance - target_distance
         self.theta_error_sum += self.theta_error
-
-        self.theta_PID_control = self.theta_kp * self.theta_error +0.001*(-157.88 * self.theta_error_sum -21.16) + self.theta_kd * (self.theta_error - self.pre_theta_error) / self.dt
+        #self.theta_PID_control = 0.1*(313.12*self.theta_kp+39.86) + self.theta_ki*self.theta_error_sum*self.dt+ self.theta_kd * (self.theta_error - self.pre_theta_error) / self.dt
+        self.theta_PID_control = self.theta_kp * self.theta_error +0*(+156.98 * self.theta_error_sum +18.64) + self.theta_kd * (self.theta_error - self.pre_theta_error) / self.dt
         self.theta1=[]
         self.theta2=[]
         self.theta1.append(self.theta_error_sum)
