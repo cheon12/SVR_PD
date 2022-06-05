@@ -15,17 +15,17 @@ class Control(PID):
         # self.SPID=SPID()
         # self.APID = APID()
         self.PID = PID()
-        self.data_z = {'goal_z':{'z' :0 , 'dz' :0 },  #D=1 V=0.3
-                    'PID':{'z' : 0, 'dz' : 0,'F_E':30, 'control': 0}
+        self.data_z = {'goal_z':{'z' :0 , 'ddz' :0 },  #D=1 V=0.3
+                    'PID':{'z' : 200, 'ddz' : 0,'F_E':100, 'control': 0}
                     # 'APID':{'D' : 0, 'V' : 0, 'control' : 0},
                     # 'SPID':{'D' : 0, 'V' : 0, 'control' : 0},
                    }
-        self.data_x= {'goal_x':{'x':0,'dx':0},
-                    'PID':{'x':0,'dx':0,'F_S':3,'control':0}
+        self.data_x= {'goal_x':{'x':0,'ddx':0},
+                    'PID':{'x':0,'ddx':0,'F_S':30,'control':0}
         }    
         
-        self.data_theta= {'goal_theta':{'theta':0,'dtheta':0},
-                    'PID':{'theta':30,'dtheta':0,'pi':10,'control':0}
+        self.data_theta= {'goal_theta':{'theta':0,'ddtheta':0},
+                    'PID':{'theta':90,'ddtheta':0,'pi':90,'control':0}
         }                    
         #self.control = [0,0]
         self.dt = 1/10
@@ -51,20 +51,22 @@ class Control(PID):
         global trigger
         trigger += 1
 
-        for key in self.data_z.keys():
-            self.data_z[key]['z'] += self.data_z[key]['dz'] * self.dt
-            self.data_z[key]['z']
+        # for key in self.data_z.keys():
+        #     self.data_z[key]['z'] = self.data_z[key]['ddz'] *self.dt*self.dt/2
+        #     self.data_z[key]['ddz']
 
-        for key in self.data_x.keys():
-            self.data_x[key]['x'] += self.data_x[key]['dx'] * self.dt
-            self.data_x[key]['x']
+        # for key in self.data_x.keys():
+        #     self.data_x[key]['x'] = self.data_x[key]['ddx'] *self.dt*self.dt/2
+        #     self.data_x[key]['ddx']
 
 
-        for key in self.data_theta.keys():
-            self.data_theta[key]['theta'] += self.data_theta[key]['dtheta'] * self.dt
-            self.data_theta[key]['theta']
+        # for key in self.data_theta.keys():
+        #     self.data_theta[key]['theta'] = self.data_theta[key]['ddtheta'] *self.dt*self.dt/2
+        #     self.data_theta[key]['ddtheta']
+        #     self.data_theta[key]['theta'] = max(min(self.data_theta[key]['theta'], 180), -180)
 
-        V_control_z = {'PID': self.PID.z_control((self.data_z['PID']['z']) ,202-2*trigger)#,
+
+        V_control_z = {'PID': self.PID.z_control((self.data_z['PID']['z']) ,self.data_z['goal_z']['z'])#,
 
         #V_control_z = {'PID': self.PID.z_control((self.data_z['PID']['z']) ,self.data_z['goal_z']['z'])#,
         # 'APID': self.APID.Vcontrol((self.data['leader']['D'] - self.data['APID']['D']) ,self.D_ref),'SPID': self.SPID.Vcontrol((self.data['leader']['D'] - self.data['SPID']['D']) ,self.D_ref)
@@ -83,35 +85,70 @@ class Control(PID):
         for key in self.data_z.keys():
             if key != 'goal_z':
 
-                self.data_z[key]['F_E'] +=V_control_z['PID']
-                self.data_z[key]['z']=((self.data_z['PID']['F_E']*math.cos(self.data_theta['PID']['pi'])*math.cos(self.data_theta['PID']['theta'])-\
+                self.data_z[key]['F_E'] =V_control_z['PID']
+                self.data_z[key]['z']+=((self.data_z['PID']['F_E']*math.cos(self.data_theta['PID']['pi'])*math.cos(self.data_theta['PID']['theta'])-\
                     self.data_z['PID']['F_E']*math.sin(self.data_theta['PID']['pi'])*math.sin(self.data_theta['PID']['theta'])-self.data_x['PID']['F_S']*math.sin(self.data_theta['PID']['theta'])-83.3)/8.5)*self.dt*self.dt/2
-                self.data_z[key]['F_E'] = max(min(self.data_z[key]['F_E'], 170), -170)
+                self.data_z[key]['F_E'] = max(min(self.data_z[key]['F_E'], 6486), 0)
                 #self.data_z['PID']['z']=self.data_z['PID']['F_E']
                 self.tmp_z=self.data_z['PID']['F_E']
+
+                if(self.data_z['PID']['z']<15):
+                    self.data_z['PID']['z']/=10
+                    self.data_z[key]['F_E'] = max(min(self.data_z[key]['F_E'], 64.86), 0)
+
+                # if(self.data_z['PID']['z']<0):
+                #     self.data_z['PID']['z']=0
+                    # self.data_z['PID']['F_E']=0
+
+
                 
         for key in self.data_x.keys():
             if key != 'goal_x':
-                self.data_x['PID']['F_S']+=V_control_x['PID']
-                self.data_x['PID']['x']=((self.data_z['PID']['F_E']*math.cos(self.data_theta['PID']['pi'])*math.sin(self.data_theta['PID']['theta'])+self.data_z['PID']['F_E']*math.sin(self.data_theta['PID']['pi'])*math.cos(self.data_theta['PID']['theta'])+self.data_x['PID']['F_S']*math.cos(self.data_theta['PID']['theta'])/8.5))*self.dt*self.dt/2
-                self.data_x['PID']['F_S'] = max(min(self.data_x['PID']['F_S'], 5), -5)
+                self.data_x['PID']['F_S']=V_control_x['PID']
+                self.data_x['PID']['x']+=(((self.data_z['PID']['F_E']*math.cos(self.data_theta['PID']['pi'])*math.sin(self.data_theta['PID']['theta'])+self.data_z['PID']['F_E']*math.sin(self.data_theta['PID']['pi'])*math.cos(self.data_theta['PID']['theta']))+self.data_x['PID']['F_S']*math.cos(self.data_theta['PID']['theta'])/8.5))*self.dt*self.dt/2
+                self.data_x['PID']['F_S'] = max(min(self.data_x['PID']['F_S'], 130), -130)
                 self.tmp_x=self.data_x['PID']['F_S']
+                # if(self.data_x['PID']['x']>0 and self.data_z['PID']['z']<20):
+                #     self.data_x['PID']['x']=0
+
+                if(self.data_x['PID']['x']<30):
+                    self.data_x['PID']['x']/=10
+                    self.data_x[key]['F_S'] = max(min(self.data_x[key]['F_S'], 13), -13)
+
+                elif(self.data_x['PID']['x']>-30):
+                    self.data_x['PID']['x']/=10
+                    self.data_x[key]['F_S'] = max(min(self.data_x[key]['F_S'], 13), -13)
+
+
         
 
         for key in self.data_theta.keys():
             if key != 'goal_theta':
 
-                self.data_theta['PID']['pi']+=V_control_theta['PID']
-                self.data_theta['PID']['theta']+=(-((self.tmp_z)*math.sin(self.data_theta['PID']['pi'])*(0.685+0.1*math.cos(self.data_theta['PID']['pi']))+(0.575*self.tmp_x))/1.34)*self.dt*self.dt/2
-                if(trigger>11):
-                    self.data_theta['PID']['theta']/=1.03
-                self.data_theta['PID']['pi'] = max(min(self.data_theta['PID']['pi'], 10), -10)
+                self.data_theta['PID']['pi']=V_control_theta['PID']
+                self.data_theta['PID']['theta']+=((((-self.tmp_z)*math.sin(self.data_theta['PID']['pi'])*(0.685+0.1*math.cos(self.data_theta['PID']['pi'])))+(0.575*self.tmp_x))/1.34)*self.dt*self.dt/2
+                #self.data_theta['PID']['theta']
+                # if(trigger>10):
+                #     self.data_theta['PID']['theta']/=1.03
+                self.data_theta['PID']['pi'] = max(min(self.data_theta['PID']['pi'], 180), -180)
+                # self.data_theta[key]['theta'] = max(min(self.data_theta[key]['theta'], 1.5), -1.5)
+                if(self.data_theta['PID']['theta']<30):
+                    self.data_theta['PID']['theta']/=10
+                    self.data_theta['PID']['pi'] = max(min(self.data_theta['PID']['pi'], 1.80), -1.80)
+
+                elif(self.data_theta['PID']['theta']>-30):
+                    self.data_theta['PID']['theta']/=10
+                    self.data_theta['PID']['pi'] = max(min(self.data_theta['PID']['pi'], 1.80), -1.80)
+
 
         self.dt_list.append(self.dt * trigger)
-        if (trigger<100):
-            self.z_PID_list.append(self.data_z['PID']['z']+202-2*trigger)
-        else:
-            self.z_PID_list.append(self.data_z['PID']['z']-0)
+
+        self.z_PID_list.append(self.data_z['PID']['z']-self.data_z['goal_z']['z'])
+
+        # if (trigger<100):
+        #     self.z_PID_list.append(self.data_z['PID']['z']+202-2*trigger)
+        # else:
+        #     self.z_PID_list.append(self.data_z['PID']['z']-0)
 
 
 
@@ -162,7 +199,7 @@ class Control(PID):
         print(f"F_S:{self.data_x['PID']['F_S']}")
         print(f"pi:{self.data_theta['PID']['pi']}")
 
-        return self.data_z['PID']['dz']
+        return self.data_z['PID']['ddz']
 
 C = Control()
 file_name = C.gain_string()

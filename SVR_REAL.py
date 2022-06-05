@@ -7,16 +7,16 @@ from sklearn.svm import SVR
 class SVR1:
     def __init__(self):
         self.z_kp = 250
-        self.z_ki = 400
+        self.z_ki = 4
         self.z_kd = 1
         
         self.x_kp = 30
-        self.x_ki = 300
+        self.x_ki = 3
         self.x_kd = 2
 
-        self.theta_kp = -60
-        self.theta_ki = -100
-        self.theta_kd = -10
+        self.theta_kp = 60
+        self.theta_ki = 10
+        self.theta_kd = 1
 
         self.dt = 1/10
 
@@ -40,13 +40,13 @@ class SVR1:
         self.x_error = cur_distance - target_distance
         self.x_error_sum += self.x_error
 
-        self.x_PID_control = self.x_kp * self.x_error + self.x_ki * self.x_error_sum * self.dt + self.x_kd * (self.x_error - self.pre_x_error_) / self.dt
+        self.x_PID_control = self.x_kp * self.x_error + 0.001*(46.8699*self.x_error_sum+20.46)+ self.x_kd * (self.x_error - self.pre_x_error_) / self.dt
         self.x1=[]
         self.x2=[]
         self.x1.append(self.x_error_sum)
         self.x2.append(self.x_PID_control)
         self.noise = np.random.normal(0,1,40)
-        self.x2+=self.noise*200
+        self.x2+=self.noise*2
         return self.x_PID_control
 
 
@@ -55,13 +55,13 @@ class SVR1:
         self.z_error = cur_distance - target_distance
         self.z_error_sum += self.z_error
 
-        self.z_PID_control = self.z_kp * self.z_error + self.z_ki * self.z_error_sum * self.dt + self.z_kd * (self.z_error - self.pre_z_error_) / self.dt
+        self.z_PID_control = self.z_kp * self.z_error + 0.001*(258.773 * self.z_error_sum +21.03) + self.z_kd * (self.z_error - self.pre_z_error_) / self.dt
         self.z1=[]
         self.z2=[]
         self.z1.append(self.z_error_sum)
         self.z2.append(self.z_PID_control)
         self.noise = np.random.normal(0,1,40)
-        self.z2+=self.noise*200
+        self.z2+=self.noise*2
         return self.z_PID_control
 
 
@@ -70,13 +70,13 @@ class SVR1:
         self.theta_error = cur_distance - target_distance
         self.theta_error_sum += self.theta_error
 
-        self.theta_PID_control = self.theta_kp * self.theta_error + self.theta_ki * self.theta_error_sum * self.dt + self.theta_kd * (self.theta_error - self.pre_theta_error) / self.dt
+        self.theta_PID_control = self.theta_kp * self.theta_error +0.001*(-157.88 * self.theta_error_sum -21.16) + self.theta_kd * (self.theta_error - self.pre_theta_error) / self.dt
         self.theta1=[]
         self.theta2=[]
         self.theta1.append(self.theta_error_sum)
         self.theta2.append(self.theta_PID_control)
         self.noise = np.random.normal(0,1,40)
-        self.theta2+=self.noise*200
+        self.theta2+=self.noise*2
         return self.theta_PID_control
 
 
